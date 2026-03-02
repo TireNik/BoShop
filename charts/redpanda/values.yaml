@@ -1,0 +1,21 @@
+namespace: dev
+
+replicaCount: 1
+
+image:
+  repository: redpandadata/redpanda
+  tag: v25.2.3-arm64
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  brokerPort: 9092
+  schemaRegistryPort: 8081
+  brokerNodePort: 31092
+  schemaRegistryNodePort: 31081
+
+persistence:
+  enabled: false
+
+tls:
+  enabled: false

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: user-postgres
+description: PostgreSQL Helm chart for user service
+version: 0.1.0
+appVersion: "15"

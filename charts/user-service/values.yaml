@@ -1,0 +1,39 @@
+replicaCount: 1
+
+image:
+  repository: user-service
+  tag: latest
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://user-svc-user-db:5432/user_db
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_DATASOURCE_PASSWORD: postgres
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+  SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+resources:
+   limits:
+     cpu: 500m
+     memory: 1024Mi
+   requests:
+     cpu: 200m
+     memory: 512Mi
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 20
+  periodSeconds: 10

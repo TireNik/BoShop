@@ -1,0 +1,20 @@
+namespace: dev
+
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+database:
+  name: user_db
+  user: postgres
+  password: postgres
+
+service:
+  type: ClusterIP
+  port: 5432
+
+persistence:
+  enabled: false

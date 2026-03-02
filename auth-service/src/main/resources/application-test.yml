@@ -1,0 +1,46 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:}
+    consumer:
+      group-id: auth-service-group
+      auto-offset-reset: earliest
+    properties:
+      schema:
+        registry:
+          url: http://localhost:8084
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    timeout: 2000ms
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 172857963583-o8643qod894lu5sh22dqig1ojk1htaep.apps.googleusercontent.com
+            client-secret: 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
+            redirect-uri: "http://localhost:8083/login/oauth2/code/google"
+            scope: email, profile
+    jwt:
+      secret: 8h10tHJZHISS8mFvpnqSUZe/QRD6ICFHMdVnPD2d4FA=
+      access-token-validity: 3600
+      refresh-token-validity: 86400
+
+  logging:
+    level:
+      org.springframework.cloud.gateway: DEBUG
+      org.springframework.security: DEBUG
+      org.springframework.security.web.FilterChainProxy: TRACE

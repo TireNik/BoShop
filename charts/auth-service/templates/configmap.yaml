@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+  namespace: {{ .Values.namespace }}
+data:
+  application-k8s.yml: |
+    spring:
+      config:
+        activate:
+          on-profile: {{ .Values.spring.profile }}
+      datasource:
+        url: {{ .Values.spring.datasource.url }}
+        username: {{ .Values.spring.datasource.username }}
+        password: {{ .Values.spring.datasource.password }}
+      kafka:
+        bootstrap-servers: {{ .Values.spring.kafka.bootstrapServers }}
+        properties:
+          schema.registry.url: {{ .Values.spring.kafka.schemaRegistryUrl }}

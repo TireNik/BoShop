@@ -1,0 +1,20 @@
+namespace: dev
+replicaCount: 1
+image:
+  repository: your-dockerhub-user/auth
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  nodePort: 30080
+
+spring:
+  profile: k8s
+  datasource:
+    url: jdbc:postgresql://auth-postgres.dev.svc.cluster.local:5432/auth_db
+    username: postgres
+    password: postgres
+  kafka:
+    bootstrapServers: redpanda.dev.svc.cluster.local:9092
+    schemaRegistryUrl: http://redpanda.dev.svc.cluster.local:8081

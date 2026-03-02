@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redpanda
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: redpanda
+  template:
+    metadata:
+      labels:
+        app: redpanda
+    spec:
+      containers:
+        - name: redpanda
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - redpanda
+            - start
+            - --overprovisioned
+            - --smp 1
+            - --memory 1G
+            - --reserve-memory 0M
+            - --node-id 0
+            - --check=false
+            - --kafka-addr PLAINTEXT://0.0.0.0:{{ .Values.service.brokerPort }}
+            - --advertise-kafka-addr PLAINTEXT://redpanda.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.service.brokerPort }}
+            - --pandaproxy-addr PLAINTEXT://0.0.0.0:8082
+            - --schema-registry-addr http://0.0.0.0:{{ .Values.service.schemaRegistryPort }}
+          ports:
+            - containerPort: {{ .Values.service.brokerPort }}
+            - containerPort: {{ .Values.service.schemaRegistryPort }}

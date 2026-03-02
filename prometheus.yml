@@ -1,0 +1,11 @@
+scrape_configs:
+  - job_name: spring-boot
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - host.docker.internal:8088  # api-gateway
+          - host.docker.internal:8087  # order
+          - host.docker.internal:8089  # inventory
+          - host.docker.internal:8086  # product
+          - host.docker.internal:8083  # auth
+          - host.docker.internal:8085  # notification

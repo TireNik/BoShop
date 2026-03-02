@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option java_package = "com.kika.inventory.grpc";
+
+message ReserveStockRequest {
+    int64 orderId = 1;
+    repeated StockItem items = 2;
+}
+
+message StockItem {
+    string productId = 1;
+    int32 quantity = 2;
+}
+
+message ReserveStockResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CancelReservationRequest {
+    int64 orderId = 1;
+    repeated StockItem items = 2;
+}
+
+message CancelReservationResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CommitReservationRequest {
+    int64 orderId = 1;
+    repeated StockItem items = 2;
+}
+
+message CommitReservationResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+service InventoryService {
+    rpc ReserveStock(ReserveStockRequest) returns (ReserveStockResponse);
+    rpc CancelReservation(CancelReservationRequest) returns (CancelReservationResponse);
+    rpc CommitReservation(CommitReservationRequest) returns (CommitReservationResponse);
+}
+

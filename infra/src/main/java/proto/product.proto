@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_package = "com.kika.product.grpc";
+option java_multiple_files = true;
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  bool published = 5;
+}
+
+message ProductIdRequest {
+  string id = 1;
+}
+
+message ProductResponse {
+  Product product = 1;
+}
+
+service ProductGrpcService {
+  rpc GetProduct(ProductIdRequest) returns (ProductResponse);
+}

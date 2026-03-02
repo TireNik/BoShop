@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodeDatabaseMigrationSettings" lastGeneratedStrategy="NONE" />
+  <component name="AmplicodeJpaPluginProjectSettings">
+    <option name="entityNameTemplate" />
+    <option name="isLombokBuilder" value="true" />
+    <option name="isLombokAllArgsConstructor" value="true" />
+    <option name="isLombokNoArgsConstructor" value="true" />
+    <option name="scaffoldingLanguage" />
+    <option name="lastSelectedLanguage" value="Java" />
+  </component>
+  <component name="AmplicodePersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="user-service" name="Default">
+        <packages>
+          <package value="com.kika.user_service" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="auth-service" name="Default">
+        <packages>
+          <package value="com.kika.auth_service" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="product-service" name="Default">
+        <packages>
+          <package value="com.kika.product_service" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="inventory-service" name="Default">
+        <packages>
+          <package value="com.kika.inventory_service" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="order-service" name="Default">
+        <packages>
+          <package value="com.kika.order_service" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

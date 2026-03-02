@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redpanda
+  namespace: {{ .Values.namespace }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: redpanda
+  ports:
+    - name: kafka
+      protocol: TCP
+      port: {{ .Values.service.brokerPort }}
+      targetPort: {{ .Values.service.brokerPort }}
+      nodePort: {{ .Values.service.brokerNodePort }}
+    - name: schema-registry
+      protocol: TCP
+      port: {{ .Values.service.schemaRegistryPort }}
+      targetPort: {{ .Values.service.schemaRegistryPort }}
+      nodePort: {{ .Values.service.schemaRegistryNodePort }}

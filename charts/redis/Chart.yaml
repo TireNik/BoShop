@@ -1,0 +1,5 @@
+apiVersion: v2
+name: auth-redis
+description: Redis Helm chart for auth service caching
+version: 0.1.0
+appVersion: "7"

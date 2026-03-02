@@ -1,0 +1,11 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/product_db
+      database: product_db
+  profiles:
+    activate:
+      on-profile: local
+
+server:
+  port: 8086

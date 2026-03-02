@@ -1,0 +1,6 @@
+dependencies:
+- name: user-db
+  repository: file://../user-db
+  version: 0.1.0
+digest: sha256:df57734b69627f3234dd2fca19564007ea7b0cf243a971efbc2d76dbde357211
+generated: "2026-01-15T20:33:22.593684+03:00"

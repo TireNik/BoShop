@@ -1,0 +1,17 @@
+{
+  "type": "record",
+  "name": "OrderCreatedEvent",
+  "namespace": "com.kika.avro.order",
+  "fields": [
+    { "name": "orderId", "type": "long" },
+    { "name": "userId", "type": "long" },
+    { "name": "status", "type": "string" },
+    {
+      "name": "occurredAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "default": 0
+    }  ]
+}

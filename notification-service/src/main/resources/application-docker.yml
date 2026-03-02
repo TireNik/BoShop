@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: notification-service
+  data:
+    mongodb:
+      uri: mongodb://notification-mongo:27017/notification_db
+    redis:
+      host: redis
+      port: 6379
+  kafka:
+    bootstrap-servers: redpanda:9092
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+    properties:
+      schema.registry.url: http://schema-registry:8081
+      specific.avro.reader: true

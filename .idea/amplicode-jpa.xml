@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodeJpaIdeaProjectConfig" ddlActionDbType="postgres" isRepositorySpecification="true" reUseTableSchema="true" newRepositoryParent="org.springframework.data.mongodb.repository.MongoRepository">
+    <option name="defaultUnitInitialized" value="true" />
+    <option name="renamerInitialized" value="true" />
+    <option name="reverseEngineeringLastDbConnectionId" value="2dd86463-946a-46ea-84ea-ee78c3b28579" />
+    <option name="reLastEntityCreationPackage" value="user-service/src/main/java/com/kika/user_service/entity" />
+    <option name="newEntityIdType" value="Long" />
+    <option name="newEntityIdStrategy" value="Identity" />
+  </component>
+</project>

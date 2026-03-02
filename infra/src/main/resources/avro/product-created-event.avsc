@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "ProductCreatedEvent",
+  "namespace": "com.kika.avro",
+  "fields": [
+    {
+      "name": "productId",
+      "type": "string",
+      "doc": "Уникальный идентификатор продукта (строковый UUID)"
+    }
+  ]
+}

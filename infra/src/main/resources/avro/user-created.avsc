@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "UserCreatedEvent",
+  "namespace": "com.kika.avro",
+  "fields": [
+    { "name": "userId", "type": "long" },
+    { "name": "name", "type": "string" },
+    { "name": "email", "type": "string" }
+  ]
+}

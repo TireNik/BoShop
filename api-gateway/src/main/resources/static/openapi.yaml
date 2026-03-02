@@ -1,0 +1,1141 @@
+openapi: 3.0.3
+info:
+  title: BoShop API
+  description: Полноценный e-commerce на микросервисах
+  version: 1.0.0
+servers:
+  - url: /
+    description: API Gateway
+
+tags:
+  - name: Auth
+    description: Регистрация, вход, управление сессиями и ролями
+
+  - name: Users
+    description: Управление пользователями (только для ADMIN)
+
+  - name: Products
+    description: Управление и просмотр товаров
+
+  - name: Inventory
+    description: Управление и просмотр инвентаря
+
+  - name: Orders
+    description: Управление заказами (создание, оплата, резервирование)
+
+paths:
+    # === AUTH (PUBLIC) ===
+  /auth/public/hi:
+    get:
+      tags:
+        - Auth
+      summary: Тестовый эндпоинт
+      responses:
+        '200':
+          description: Приветствие
+
+  /auth/public/register:
+    post:
+      tags:
+        - Auth
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUserDto'
+      responses:
+        '201':
+          description: Успешно зарегистрирован
+
+  /auth/public/login:
+    post:
+      tags:
+        - Auth
+      summary: Аутентификация → получение токенов
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+
+  /auth/public/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Обновление access токена
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            properties:
+              refreshToken:
+                type: string
+      responses:
+        '200':
+          description: Новые токены
+
+  # === AUTH (ADMIN) ===
+  /auth/admin/role/change/{id}:
+    post:
+      tags:
+        - Auth
+      summary: Изменить роль пользователя (только ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: role
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [ROLE_USER, ROLE_ADMIN]
+      responses:
+        '200':
+          description: Роль изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserDto'
+
+  # === AUTH (USER) ===
+  /auth/user/logout:
+    post:
+      tags:
+        - Auth
+      summary: Выход из системы
+      security:
+        - bearerAuth: [ROLE_USER, ROLE_ADMIN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Успешно вышел
+
+  # === USERS (ADMIN) ===
+  /api/v1/users/me:
+    get:
+      tags:
+        - Users
+      summary: Получить текущего пользователя (авторизованный)
+      security:
+        - bearerAuth: [ROLE_USER, ROLE_ADMIN]
+      responses:
+        '200':
+          description: Приветствие
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/users:
+    get:
+      tags:
+        - Users
+      summary: Получить всех пользователей (только ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedModelUserDto'
+
+    post:
+      tags:
+        - Users
+      summary: Создать пользователя (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        '200':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Получить пользователя по ID (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Данные пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+    patch:
+      tags:
+        - Users
+      summary: Частичное обновление пользователя (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        '200':
+          description: Пользователь обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+    delete:
+      tags:
+        - Users
+      summary: Удалить пользователя (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Пользователь удалён
+
+  /api/v1/users/delete-batch:
+    delete:
+      tags:
+        - Users
+      summary: Удалить несколько пользователей (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: Пользователи удалены
+
+
+  # === PRODUCTS (ADMIN) ===
+  /api/v1/products/admin:
+    post:
+      tags:
+        - Products
+      summary: Создать товар (только ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequestDto'
+      responses:
+        '201':
+          description: Товар успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+
+  /api/v1/products/admin/publish/{id}:
+    post:
+      tags:
+        - Products
+      summary: Опубликовать или скрыть товар (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Идентификатор товара (UUID)
+        - name: publish
+          in: query
+          required: true
+          schema:
+            type: boolean
+          description: true — опубликовать, false — скрыть
+      responses:
+        '200':
+          description: Статус публикации изменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+
+  /api/v1/products/admin/{id}:
+    get:
+      tags:
+        - Products
+      summary: Получить товар по ID (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Идентификатор товара
+      responses:
+        '200':
+          description: Данные товара
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+        '404':
+          description: Товар не найден
+
+    patch:
+      tags:
+        - Products
+      summary: Частичное обновление товара (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequestDto'
+      responses:
+        '200':
+          description: Товар обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+
+    delete:
+      tags:
+        - Products
+      summary: Удалить товар (ADMIN)
+      security:
+        - bearerAuth: [ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Товар успешно удалён
+        '404':
+          description: Товар не найден
+
+  # === PRODUCTS (PUBLIC) ===
+  /api/v1/products/public/search:
+    get:
+      tags:
+        - Products
+      summary: Поиск и фильтрация товаров (публичный)
+      security: []
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Название товара (частичное совпадение)
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Категория товара
+        - name: published
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: Фильтр по статусу публикации
+        - name: priceFrom
+          in: query
+          schema:
+            type: number
+            format: double
+          description: Минимальная цена
+        - name: priceTo
+          in: query
+          schema:
+            type: number
+            format: double
+          description: Максимальная цена
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Страница с товарами
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageProductResponseDto'
+
+  /api/v1/products/public/{id}:
+    get:
+      tags:
+        - Products
+      summary: Получить товар по ID (публичный)
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные товара
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDto'
+        '404':
+          description: Товар не найден
+    # === INVENTORY (USER) ===
+
+
+  # === INVENTORY (ADMIN) ===
+  /api/v1/inventory/{id}:
+    get:
+      tags:
+        - Inventory
+      summary: Получить остаток товара
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные по остатку
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryDto'
+
+  /api/v1/inventory/update/{id}:
+    post:
+      tags:
+        - Inventory
+      summary: Создать или обновить остаток товара
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryDto'
+      responses:
+        '200':
+          description: Остаток создан или обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryDto'
+
+  /api/v1/inventory/add/{id}:
+    put:
+      tags:
+        - Inventory
+      summary: Пополнить склад
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: quantity
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Склад пополнен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryDto'
+
+  /api/v1/inventory/remove/{id}:
+    put:
+      tags:
+        - Inventory
+      summary: Списать со склада
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: quantity
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Списание выполнено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryDto'
+
+  # === ORDERS (PUBLIC) ===
+  /api/v1/orders/public:
+    post:
+      tags:
+        - Orders
+      summary: Создать заказ (только авторизованные)
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Заказ успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+
+    get:
+      tags:
+        - Orders
+      summary: Получить все заказы пользователя
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Список заказов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedModelOrderResponseDto'
+
+  /api/v1/orders/public/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Получить заказ по ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Данные заказа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        '404':
+          description: Заказ не найден
+
+  /api/v1/orders/public/{id}/add-product:
+    post:
+      tags:
+        - Orders
+      summary: Добавить товар в заказ
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderItemDto'
+      responses:
+        '200':
+          description: Товар добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        '404':
+          description: Заказ не найден
+
+  /api/v1/orders/public/reserve/{id}:
+    post:
+      tags:
+        - Orders
+      summary: Зарезервировать товары в заказе
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Резерв выполнен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        '400':
+          description: Недостаточно товара
+        '404':
+          description: Заказ не найден
+
+  /api/v1/orders/public/pay/{id}:
+    post:
+      tags:
+        - Orders
+      summary: Оплатить заказ
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Заказ оплачен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+        '400':
+          description: Заказ не зарезервирован
+        '404':
+          description: Заказ не найден
+
+  /api/v1/orders/public/cancel/{id}:
+    post:
+      tags:
+        - Orders
+      summary: Отменить заказ
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Заказ отменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+
+  # === ORDERS (MANAGER) ===
+  /api/v1/orders/manager:
+    get:
+      tags:
+        - Orders
+      summary: Получить все заказы (MANAGER, ADMIN)
+      security:
+        - bearerAuth: [ROLE_MANAGER, ROLE_ADMIN]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Список всех заказов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedModelOrderResponseDto'
+
+  /api/v1/orders/manager/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Получить заказ по ID (MANAGER, ADMIN)
+      security:
+        - bearerAuth: [ROLE_MANAGER, ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Данные заказа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+
+  /api/v1/orders/manager/by-ids:
+    get:
+      tags:
+        - Orders
+      summary: Получить несколько заказов по ID (MANAGER, ADMIN)
+      security:
+        - bearerAuth: [ROLE_MANAGER, ROLE_ADMIN]
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: Список заказов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponseDto'
+
+  /api/v1/orders/manager/{id}/add-product:
+    post:
+      tags:
+        - Orders
+      summary: Добавить товар в заказ (MANAGER, ADMIN)
+      security:
+        - bearerAuth: [ROLE_MANAGER, ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderItemDto'
+      responses:
+        '200':
+          description: Товар добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+
+  /api/v1/orders/manager/reserve/{id}:
+    post:
+      tags:
+        - Orders
+      summary: Зарезервировать заказ (MANAGER, ADMIN)
+      security:
+        - bearerAuth: [ROLE_MANAGER, ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Резерв выполнен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+
+  /api/v1/orders/manager/cancel/{id}:
+    post:
+      tags:
+        - Orders
+      summary: Отменить заказ (MANAGER, ADMIN)
+      security:
+        - bearerAuth: [ROLE_MANAGER, ROLE_ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Заказ отменён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponseDto'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AuthUserDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ ROLE_USER, ROLE_MANAGER, ROLE_ADMIN ]
+
+    LoginRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: test.admin@example.com
+        password:
+          type: string
+          example: qwerty
+
+    LoginResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        role:
+          type: string
+
+    ProductRequestDto:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: "Wireless Headphones"
+        description:
+          type: string
+          maxLength: 1000
+          example: "High-quality wireless headphones with noise cancellation"
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 99.99
+        category:
+          type: string
+          maxLength: 50
+          example: "Electronics"
+        published:
+          type: boolean
+          default: false
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 50
+          maxItems: 10
+          example: [ "audio", "wireless", "gadget" ]
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          maxItems: 5
+          example: [ "https://example.com/images/headphones1.jpg" ]
+
+    ProductResponseDto:
+      allOf:
+        - $ref: '#/components/schemas/ProductRequestDto'
+        - type: object
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    OrderItemDto:
+      type: object
+      required:
+        - productId
+        - quantity
+        - price
+      properties:
+        productId:
+          type: string
+          description: Идентификатор товара
+          example: "69305792-bedf-1f17-0fbf-1a7b12345678"
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 99.99
+
+    OrderRequestDto:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 123
+
+    OrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 456
+        userId:
+          type: integer
+          format: int64
+          example: 123
+        status:
+          type: string
+          enum: [ NEW, RESERVED, PAID, CANCELLED ]
+          example: NEW
+        totalPrice:
+          type: number
+          format: double
+          example: 199.98
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PagedModelOrderResponseDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderResponseDto'
+        page:
+          type: object
+          properties:
+            size:
+              type: integer
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+            number:
+              type: integer
+
+    PageProductResponseDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponseDto'
+        page:
+          type: object
+          properties:
+            size:
+              type: integer
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+            number:
+              type: integer
+
+    InventoryDto:
+      type: object
+      properties:
+        productId:
+          type: string
+        available:
+          type: integer
+          nullable: true
+
+    UserDto:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+
+    PagedModelUserDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+        page:
+          type: object
+          properties:
+            size:
+              type: integer
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+            number:
+              type: integer

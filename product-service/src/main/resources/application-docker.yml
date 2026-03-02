@@ -1,0 +1,17 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://product-mongo:27017/product_db
+      database: product_db
+  profiles:
+    activate:
+      on-profile: docker
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    properties:
+      schema:
+        registry:
+          url: http://localhost:8084

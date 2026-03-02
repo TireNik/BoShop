@@ -1,0 +1,27 @@
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://inventory-postgres:5432/inventory_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  kafka:
+    bootstrap-servers: redpanda:9092
+    consumer:
+      auto-offset-reset: earliest
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    properties:
+      schema:
+        registry:
+          url: http://schema-registry:8081
+
+grpc:
+  server:
+    port: 50051
