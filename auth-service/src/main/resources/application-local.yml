@@ -33,8 +33,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 172857963583-o8643qod894lu5sh22dqig1ojk1htaep.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             redirect-uri: "http://localhost:8083/login/oauth2/code/google"
             scope: email, profile
     jwt:

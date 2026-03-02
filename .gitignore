@@ -1,81 +1,29 @@
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
+.idea
 *.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### Eclipse ###
-.apt_generated
+*.iws
 .classpath
-.factorypath
 .project
 .settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
+target/
+*.log
 .DS_Store
-/infra/src/main/java/infrastructure/databases/notification-mongo/.mongodb/mongosh/68ef7e4e064eb9a1f44f87fd_log
-
-### Environment ###
-.env
-.env.*
-
-### Docker ###
-docker-compose.override.yml
-**/docker-compose.override.yml
-**/tmp/
-**/build/
-**/dist/
-
-### Kubernetes / Helm ###
-charts/**/charts/
-charts/**/tmp/
-charts/**/values-local.yaml
-
-### Databases ###
-# Mongo local data
-**/.mongodb/
-**/data/
-**/dump/
-**/journal/
-**/diagnostic.data/
-/infra/src/main/java/infrastructure/databases/product-mongo
-/infra/src/main/java/infrastructure/databases/notification-mongo
-
-
-# Postgres data (если хранишь локально)
-**/pgdata/
-**/postgres-data/
-
-### Test reports ###
-surefire-reports/
-jacoco.exec
+*.swp
+*.swo
+node_modules/
+dist/
+build/
 coverage/
-build/reports/
-/charts/user-db/templates/tests/
+.env
+*.env
+*.local
+*.tmp
+*.bak
+*.backup
+.DS_Store?
+.hprof
+local.properties
+*.sublime-project
+*.sublime-workspace
+*.iml
+*.iws
+*~.
